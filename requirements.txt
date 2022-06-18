@@ -1,0 +1,2 @@
+libdyson~=0.8.11
+setuptools~=60.2.0
