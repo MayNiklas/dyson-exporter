@@ -67,9 +67,9 @@ def main():
         measurements = get_dyson_readings(dyson_ip, serial, credential, device_type)
         if kelvinToCelsius(measurements["temperature"]) != 0:
             dyson_temperature.set(kelvinToCelsius(measurements["temperature"]))
-        dyson_humidity.set(measurements["humidity"])
+            dyson_humidity.set(measurements["humidity"])
 
-        time.sleep(10)
+        time.sleep(15)
 
 
 if __name__ == '__main__':
