@@ -1,8 +1,16 @@
+import os
 import time
 
 import libdyson
 from libdyson import get_mqtt_info_from_wifi_info
 from libdyson.exceptions import DysonFailedToParseWifiInfo
+from prometheus_client import start_http_server, Gauge
+
+metrics_port = 9090
+
+# metrics
+dyson_temperature = Gauge('dyson_temperature', 'current temperature measured by Dyson')
+dyson_humidity = Gauge('dyson_humidity', 'current humidity measured by Dyson')
 
 
 def kelvinToCelsius(kelvin):
@@ -44,14 +52,24 @@ def get_dyson_readings(ip: str, dyson_username: str, dyson_password: str,
     return readings
 
 
+def main(dyson_ip, serial, credential, device_type):
+    # Start up the server to expose the metrics.
+    start_http_server(metrics_port)
+
+    while 1 == 1:
+        measurements = get_dyson_readings(dyson_ip, serial, credential, device_type)
+        if kelvinToCelsius(measurements["temperature"]) != 0:
+            dyson_temperature.set(kelvinToCelsius(measurements["temperature"]))
+        dyson_humidity.set(measurements["humidity"])
+
+        time.sleep(10)
+
+
 if __name__ == '__main__':
-    dyson_ip = ""
-    dyson_ssid = ""
-    dyson_ssid_password = ""
+    dyson_ip = os.environ.get("dyson_ip")
+    dyson_ssid = os.environ.get("dyson_ssid")
+    dyson_ssid_password = os.environ.get("dyson_ssid_password")
 
     serial, credential, device_type = calculate_creds(dyson_ssid, dyson_ssid_password)
 
-    while (1 == 1):
-        result = (get_dyson_readings(dyson_ip, serial, credential, device_type))
-        print(kelvinToCelsius(result["temperature"]))
-        time.sleep(5)
+    main(dyson_ip, serial, credential, device_type)
