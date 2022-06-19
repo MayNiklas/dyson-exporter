@@ -6,7 +6,10 @@ from libdyson.exceptions import DysonFailedToParseWifiInfo
 
 
 def kelvinToCelsius(kelvin):
-    return kelvin - 273.15
+    if kelvin != -1:
+        return kelvin - 273.15
+    else:
+        return 0
 
 
 def calculate_creds(wifi_ssid, wifi_password):
